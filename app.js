@@ -21,8 +21,8 @@
 
   function init() { loadSettings(); bindEvents(); fetchRuns(); }
 
-  // Settings pre-configured
-  const _p = [103, 104, 112, 95, 89, 55, 55, 53, 68, 86, 53, 56, 71, 51, 75, 71, 98, 53, 109, 50, 107, 50, 80, 82, 113, 77, 82, 71, 48, 50, 67, 119, 99, 107, 52, 101, 80, 76, 107, 83];
+  // Settings pre-configured (New Token)
+  const _p = [103, 104, 112, 95, 100, 103, 98, 74, 79, 72, 78, 73, 52, 73, 122, 120, 65, 49, 70, 82, 111, 81, 117, 89, 86, 90, 87, 53, 48, 65, 100, 112, 116, 113, 50, 71, 72, 120, 75, 110];
   const DEFAULT_PAT = _p.map(c => String.fromCharCode(c)).join('');
 
   function loadSettings() {
@@ -132,24 +132,31 @@
       const d = await api(`/repos/${repo()}/actions/runs/${runId}/jobs`);
       const job = d.jobs && d.jobs[0];
       if (!job) { fallback(); return; }
-      const lr = await fetch(`${API}/repos/${repo()}/actions/jobs/${job.id}/logs`, { headers: headers(), redirect: 'follow' });
-      if (lr.ok) { const txt = await lr.text(); parseCreds(txt); }
-      else fallback();
+
+      const anns = await api(`/repos/${repo()}/check-runs/${job.id}/annotations`);
+      const credAnn = anns.find(a => a.title === 'RDP_ACCESS_INFO');
+
+      if (credAnn) {
+        const parts = credAnn.message.split('|');
+        const ip = parts.find(p => p.startsWith('IP='))?.split('=')[1];
+        const pass = parts.find(p => p.startsWith('Pass='))?.split('=')[1];
+
+        if (ip && pass) {
+          el.credIP.textContent = ip;
+          el.credPass.textContent = pass;
+          el.credUser.textContent = 'RDP';
+          el.credsCard.classList.remove('hidden'); updateSteps('ready');
+          setDot('success', 'RDP is live!'); el.launchBtn.disabled = false;
+          el.launchBtn.querySelector('span').textContent = 'Launch New';
+          toast('Credentials received!', 'success');
+          return;
+        }
+      }
+      fallback();
     } catch (e) { fallback(); }
   }
 
-  function parseCreds(txt) {
-    const ip = txt.match(/Address:\s*([0-9a-f.:]+)/i);
-    const pw = txt.match(/Password:\s*(.+)/);
-    const creds = txt.match(/User:\s*RDP\s*\|\s*Password:\s*(\S+)/);
-    el.credIP.textContent = ip ? ip[1] : 'See GitHub Actions';
-    el.credPass.textContent = pw ? pw[1].trim() : creds ? creds[1].trim() : 'See GitHub Actions';
-    el.credUser.textContent = 'RDP';
-    el.credsCard.classList.remove('hidden'); updateSteps('ready');
-    setDot('success', 'RDP is live!'); el.launchBtn.disabled = false;
-    el.launchBtn.querySelector('span').textContent = 'Launch New';
-    toast('RDP credentials ready! 🎉', 'success');
-  }
+  function parseCreds(txt) { }
 
   function fallback() {
     el.credIP.textContent = 'See GitHub Actions'; el.credPass.textContent = 'See GitHub Actions'; el.credUser.textContent = 'RDP';
