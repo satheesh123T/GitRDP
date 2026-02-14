@@ -1,5 +1,5 @@
 // GitRDP Service Worker — enables PWA install
-const CACHE_NAME = 'gitrdp-v1';
+const CACHE_NAME = 'gitrdp-v2';
 const ASSETS = ['./index.html', './style.css', './app.js', './manifest.json'];
 
 self.addEventListener('install', (e) => {
