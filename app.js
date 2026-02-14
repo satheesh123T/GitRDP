@@ -26,10 +26,12 @@
   const DEFAULT_PAT = _p.map(c => String.fromCharCode(c)).join('');
 
   function loadSettings() {
-    if (!localStorage.getItem(STORAGE.pat)) localStorage.setItem(STORAGE.pat, DEFAULT_PAT);
-    el.patInput.value = localStorage.getItem(STORAGE.pat) || DEFAULT_PAT;
+    const stored = localStorage.getItem(STORAGE.pat);
+    if (!stored || stored.length < 10) localStorage.setItem(STORAGE.pat, DEFAULT_PAT);
+    el.patInput.value = localStorage.getItem(STORAGE.pat);
     el.repoInput.value = localStorage.getItem(STORAGE.repo) || 'satheesh123T/MyRDP';
     el.wfInput.value = localStorage.getItem(STORAGE.wfId) || '218600404';
+    save();
   }
 
   function save() {
