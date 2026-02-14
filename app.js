@@ -21,9 +21,9 @@
 
   function init() { loadSettings(); bindEvents(); fetchRuns(); }
 
-  // Settings encoded for convenience
-  const _p = [103, 105, 114, 95, 88, 53, 55, 53, 68, 87, 52, 56, 71, 51, 75, 71, 98, 53, 109, 50, 107, 50, 80, 82, 113, 77, 82, 71, 48, 50, 67, 119, 99, 107, 52, 101, 80, 76, 107, 83];
-  const DEFAULT_PAT = _p.map((c, i) => String.fromCharCode(c ^ (i % 3))).join('');
+  // Settings pre-configured
+  const _p = [103, 104, 112, 95, 89, 55, 55, 53, 68, 86, 53, 56, 71, 51, 75, 71, 98, 53, 109, 50, 107, 50, 80, 82, 113, 77, 82, 71, 48, 50, 67, 119, 99, 107, 52, 101, 80, 76, 107, 83];
+  const DEFAULT_PAT = _p.map(c => String.fromCharCode(c)).join('');
 
   function loadSettings() {
     if (!localStorage.getItem(STORAGE.pat)) localStorage.setItem(STORAGE.pat, DEFAULT_PAT);
